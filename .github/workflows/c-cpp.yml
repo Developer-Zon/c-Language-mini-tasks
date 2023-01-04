@@ -1,23 +1,22 @@
-name: C/C++ CI
+name: CI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+        sudo apt-get install -y libyaml-cpp-dev
+    - name: Build with CMake
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+    - name: Test with CTest
+      run: |
+        cmake --build _build --target test
+        ctest -C Debug
